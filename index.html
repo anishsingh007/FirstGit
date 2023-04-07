@@ -9,11 +9,11 @@
 <body>
   <form>
     <label>Name</label>
-    <input type="text" name="username"  required/>
+    <input type="text" name="username" required />
     <label>EmailId</label>
-    <input type="email" name="emailid"  required/>
+    <input type="email" name="emailid" required />
     <label>PhoneNumber</label>
-    <input type="tel" name="phoneNo"  required/>
+    <input type="tel" name="phoneNo" required />
     <button type="submit">Submit</button>
   </form>
   <ul id="listOfItems"></ul>
@@ -24,17 +24,6 @@
     const parentElem = document.getElementById("listOfItems");
 
     form.addEventListener('submit', (event) => {
-      axios.get("https://crudcrud.com/api/b4069c8c9beb4cf5ad39fc98b25b3bf8/appointmentData")
-      .then((response)=>{
-        console.log(response)
-        for (let i = 0; i < response.data.length; i++) {
-      showUserOnScreen(response.data[i]);
-    }
-      
-      })
-      .catch((err)=>{
-        console.log(err)
-      })
       event.preventDefault();
       const name = form.username.value;
       const email = form.emailid.value;
@@ -47,30 +36,47 @@
       }
       axios.post("https://crudcrud.com/api/b4069c8c9beb4cf5ad39fc98b25b3bf8/appointmentData", obj)
       .then((response)=>{
-        console.log(response)
-      
+        console.log(response);
+        obj._id = response.data._id; // store the id returned by server
+        showUserOnScreen(obj);
       })
       .catch((err)=>{
-        console.log(err)
+        console.log(err);
       })
-
-      // localStorage.setItem(email, JSON.stringify(obj));
-     // showUserOnScreen(obj);
+       
       form.reset();
     });
 
     function showUserOnScreen(obj){
       const childElem = document.createElement('li');
-      childElem.textContent = obj.name +' - '+ obj.email+' - '+obj.phoneNo;
+      const deleteBtn = document.createElement('button');
+      deleteBtn.innerHTML = "Delete";
+      deleteBtn.addEventListener('click', () => {
+        axios.delete("https://crudcrud.com/api/b4069c8c9beb4cf5ad39fc98b25b3bf8/appointmentData/" + obj._id)
+        .then((response) => {
+          parentElem.removeChild(childElem); // remove element from webpage
+        })
+        .catch((err) => {
+          console.log(err);
+        })
+      });
+      childElem.textContent = obj.name + ' - ' + obj.email + ' - ' + obj.phoneNo;
+      childElem.appendChild(deleteBtn); // add delete button to the list item
       parentElem.appendChild(childElem);
     }
 
-    // On page load, retrieve all items from local storage and display them
-    // for (let i = 0; i < localStorage.length; i++) {
-    //   const key = localStorage.key(i);
-    //   const obj = JSON.parse(localStorage.getItem(key));
-    //   showUserOnScreen(obj);
-    // }
+    axios.get("https://crudcrud.com/api/b4069c8c9beb4cf5ad39fc98b25b3bf8/appointmentData")
+    .then((response)=>{
+      console.log(response);
+      for (let i = 0; i < response.data.length; i++) {
+        showUserOnScreen(response.data[i]);
+      }
+    })
+    .catch((err)=>{
+      console.log(err);
+    })
+
   </script>  
 </body>
 </html>
+
